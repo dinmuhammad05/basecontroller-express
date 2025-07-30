@@ -1,6 +1,6 @@
 {
     "name": "basecontroller-express",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "basecontroller for express.js",
     "main": "main.js",
     "scripts": {
