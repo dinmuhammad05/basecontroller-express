@@ -1,0 +1,22 @@
+{
+    "name": "basecontroller-express",
+    "version": "1.0.0",
+    "description": "basecontroller for express.js",
+    "main": "main.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/dinmuhammad05/basecontroller-express.git"
+    },
+    "author": "Qosimov Dinmuhammad",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/dinmuhammad05/basecontroller-express/issues"
+    },
+    "homepage": "https://github.com/dinmuhammad05/basecontroller-express#readme",
+    "dependencies": {
+        "mongoose": "^8.17.0"
+    }
+}
