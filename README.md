@@ -1,25 +1,150 @@
-# basecontroller-express
+# 🧩 BaseController Express
 
-basecontroller-express
-🧩 BaseController Class The BaseController is a reusable, generic controller class designed for Express.js applications using Mongoose. It provides a set of common CRUD operations (create, findAll, findById, update, and delete) that can be extended by any controller working with a Mongoose model. ✅ Usage To use the BaseController, simply extend it in your own controller class and pass the corresponding Mongoose model:
+`BaseController-Express` is a reusable, extensible base controller for building RESTful APIs with [Express.js](https://expressjs.com/) and [Mongoose](https://mongoosejs.com/). It provides common CRUD operations, centralized error handling, and standard JSON response formatting out of the box.
+
+## ✨ Features
+
+- ✅ Reusable `BaseController` class with CRUD methods
+- ✅ Built-in ID validation using `mongoose.isValidObjectId()`
+- ✅ Centralized error handling with `AppError` and `globalErrorHandle`
+- ✅ Consistent success response formatting
+- ✅ Simple to extend and use in real-world projects
+
+---
+
+## 📆 Installation
+
+```bash
+npm install basecontroller-express
+```
+
+---
+
+## 📁 Folder Structure
+
+```
+basecontroller-express/
+├── controllers/
+│   └── BaseController.js
+├── error/
+│   ├── AppError.js
+│   └── global-error-handel.js
+├── utils/
+│   └── success-res.js
+└── main.js (exports all core parts)
+```
+
+---
+
+## 🚀 Usage
+
+### 1. Create Your Controller
 
 ```js
-import YourModel from "../models/your.model.js";
-import { BaseController } from "./base.controller.js";
-class YourController extends BaseController {
-    constructor() {
-        super(YourModel);
-    }
+// UserController.js
+import { BaseController } from "basecontroller-express";
+import UserModel from "../models/User.js";
+
+export class UserController extends BaseController {
+  constructor() {
+    super(UserModel);
+  }
 }
 ```
 
-⚙️ Methods All methods are asynchronous and return JSON responses with appropriate status codes and messages. create(req, res) Creates a new document in the database using the request body. Success: 201 Created Failure: 500 Internal Server Error findAll(\_, res) Retrieves all documents from the collection. Success: 200 OK Failure: 500 Internal Server Error findById(req, res) Finds a single document by its ID. Validates if the id is a valid MongoDB ObjectId. Success: 200 OK Failure:
+---
 
-400 Bad Request if the ID is invalid 404 Not Found if no document is found 500 Internal Server Error otherwise update(req, res) Updates a document by its ID using data from the request body. Validates if the id is a valid MongoDB ObjectId. Success: 200 OK Failure: 400 Bad Request for invalid ID 404 Not Found if the document doesn’t exist 500 Internal Server Error otherwise delete(req, res) Deletes a document by its ID. Validates if the id is a valid MongoDB ObjectId. Success: 200 OK Failure: 400 Bad Request for invalid ID 404 Not Found if the document doesn’t exist 500 Internal Server Error otherwise 📦 Dependencies mongoose – Used for model operations and ObjectId validation
+### 2. Create Routes
 
-💡 Tip You can further customize this controller by: Overriding methods in child classes Adding validation middlewares before controller methods Logging responses or errors using a logger like Winston
+```js
+// user.routes.js
+import express from "express";
+import { UserController } from "../controllers/UserController.js";
 
+const router = express.Router();
+const userController = new UserController();
+
+router.post("/", userController.create);
+router.get("/", userController.getAll);
+router.get("/:id", userController.getById);
+router.put("/:id", userController.update);
+router.delete("/:id", userController.delete);
+
+export default router;
 ```
 
+---
+
+### 3. Apply Global Middleware
+
+```js
+// app.js
+import express from "express";
+import userRoutes from "./routes/user.routes.js";
+import { globalErrorHandle } from "basecontroller-express";
+
+const app = express();
+app.use(express.json());
+
+app.use("/api/users", userRoutes);
+
+// Global error handler
+app.use(globalErrorHandle);
+
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
+});
 ```
->>>>>>> dd54ec0 (Readme.md file to'g'rilandi)
+
+---
+
+## 📜 API Reference
+
+### `BaseController(model)`
+
+| Method    | Description                         |
+| --------- | ----------------------------------- |
+| `create`  | `POST /` - Create a new document    |
+| `getAll`  | `GET /` - Get all documents         |
+| `getById` | `GET /:id` - Get one document by ID |
+| `update`  | `PUT /:id` - Update a document      |
+| `delete`  | `DELETE /:id` - Delete a document   |
+
+---
+
+### `AppError(message, statusCode)`
+
+Use this to throw custom errors:
+
+```js
+throw new AppError("User not found", 404);
+```
+
+---
+
+### `globalErrorHandle(err, req, res, next)`
+
+Global middleware that catches all errors thrown in the app and returns a consistent error response.
+
+---
+
+### `successRes(res, data, statusCode)`
+
+Use this helper to send successful responses:
+
+```js
+return successRes(res, createdUser, 201);
+```
+
+---
+
+## 📄 License
+
+MIT
+
+---
+
+## ✍️ Author
+
+Made with ❤️ by [(https://github.com/dinmuhammad05)]
+
