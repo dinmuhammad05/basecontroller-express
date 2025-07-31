@@ -1,6 +1,6 @@
 {
     "name": "basecontroller-express",
-    "version": "1.0.2",
+    "version": "2.0.0",
     "description": "basecontroller for express.js",
     "main": "main.js",
     "type":"module",
@@ -19,7 +19,6 @@
     },
     "homepage": "https://github.com/dinmuhammad05/basecontroller-express#readme",
     "dependencies": {
-        "express": "^5.1.0",
         "mongoose": "^8.17.0"
     }
 }
