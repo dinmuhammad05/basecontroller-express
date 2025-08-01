@@ -8,6 +8,7 @@
 - ✅ Built-in ID validation using `mongoose.isValidObjectId()`
 - ✅ Centralized error handling with `AppError` and `globalErrorHandle`
 - ✅ Consistent success response formatting
+- ✅ Optional `.populate()` support for relational data
 - ✅ Simple to extend and use in real-world projects
 
 ---
@@ -47,7 +48,7 @@ import UserModel from "../models/User.js";
 
 export class UserController extends BaseController {
   constructor() {
-    super(UserModel);
+    super(UserModel, ["profile"]); // Optional populate fields
   }
 }
 ```
@@ -97,10 +98,40 @@ app.listen(3000, () => {
 ```
 
 ---
+## 📦 main.js - Entry point
+
+You can import everything from a single entry point using `main.js`:
+
+```js
+// main.js
+export { BaseController } from "./controllers/BaseController.js";
+export { AppError } from "./error/AppError.js";
+export { globalErrorHandle } from "./error/global-error-handel.js";
+export { successRes } from "./utils/success-res.js";
+```
+
+Then in your application:
+
+```js
+// app.js
+import express from "express";
+import { globalErrorHandle } from "basecontroller-express";
+import userRoutes from "./routes/user.routes.js";
+
+const app = express();
+app.use(express.json());
+
+app.use("/api/users", userRoutes);
+
+// ✅ Global error handler middleware — keep this last
+app.use(globalErrorHandle);
+```
+
+---
 
 ## 📜 API Reference
 
-### `BaseController(model)`
+### `BaseController(model, [populateFields])`
 
 | Method    | Description                         |
 | --------- | ----------------------------------- |
@@ -109,6 +140,53 @@ app.listen(3000, () => {
 | `getById` | `GET /:id` - Get one document by ID |
 | `update`  | `PUT /:id` - Update a document      |
 | `delete`  | `DELETE /:id` - Delete a document   |
+
+> You can pass an array of populate fields to the controller:
+>
+> ```js
+> super(UserModel, ["profile", "group"])
+> ```
+>
+> These fields will be auto-populated in `getAll` and `getById` methods.
+
+---
+
+### 🔄 Populate Support
+
+If your model includes references to other collections (e.g., a user has a `profile`), use the optional `populateFields` array to automatically populate them.
+
+#### ✅ Example
+
+```js
+// UserController.js
+import { BaseController } from "basecontroller-express";
+import UserModel from "../models/User.js";
+
+export class UserController extends BaseController {
+  constructor() {
+    super(UserModel, ["profile", "group"]);
+  }
+}
+```
+
+#### 🔎 Result
+
+- `GET /api/users` – populates `profile` and `group` for each user
+- `GET /api/users/:id` – populates `profile` and `group` for single user
+
+Populate only affects `getAll` and `getById`.
+
+Make sure your schema has `ref` set up like so:
+
+```js
+const userSchema = new Schema({
+  name: String,
+  profile: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Profile",
+  },
+});
+```
 
 ---
 
@@ -146,5 +224,123 @@ MIT
 
 ## ✍️ Author
 
-Made with ❤️ by [(https://github.com/dinmuhammad05)]
+Made with ❤️ by [Qosimov Dinmuhammad](https://github.com/dinmuhammad05)
+---
 
+# 🧩 BaseController Express - O‘zbekcha
+
+`BaseController-Express` — bu [Express.js](https://expressjs.com/) va [Mongoose](https://mongoosejs.com/) yordamida RESTful API yaratish uchun qayta ishlatiladigan va kengaytiriladigan baza controller hisoblanadi. U umumiy CRUD funksiyalarini, markazlashtirilgan xatoliklarni qayta ishlashni va yagona JSON formatda javob yuborishni ta'minlaydi.
+
+## ✨ Xususiyatlari
+
+- ✅ CRUD metodlarga ega qayta ishlatiladigan `BaseController` klass
+- ✅ `mongoose.isValidObjectId()` orqali ID'ni tekshirish
+- ✅ `AppError` va `globalErrorHandle` yordamida xatoliklarni markazlashtirib ushlash
+- ✅ Standart muvaffaqiyatli javob formatlash
+- ✅ `.populate()` orqali bog‘langan ma'lumotlarni avtomatik chaqirish
+- ✅ Haqiqiy loyihalarda ishlatishga tayyor
+
+---
+
+## 🚀 Qanday ishlatish
+
+### 1. Controller yaratish
+
+```js
+import { BaseController } from "basecontroller-express";
+import UserModel from "../models/User.js";
+
+export class UserController extends BaseController {
+  constructor() {
+    super(UserModel, ["profile"]); // Ixtiyoriy populate maydonlari
+  }
+}
+```
+
+---
+
+### 🔄 `populate` haqida
+
+Agar sizning modelingizda boshqa kolleksiyalarga `ref` berilgan bo‘lsa, `populateFields` massivi yordamida `getAll` va `getById` metodlarida `.populate()` avtomatik qo‘llaniladi.
+
+```js
+super(UserModel, ["profile", "group"]);
+```
+
+Bu `GET /api/users` va `GET /api/users/:id` chaqiruvlarida `profile` va `group` field'larini avtomatik to‘ldiradi.
+
+Schema misoli:
+
+```js
+const userSchema = new Schema({
+  name: String,
+  profile: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Profile",
+  },
+});
+```
+
+---
+
+### 2. Xatoliklar bilan ishlash
+
+```js
+throw new AppError("Foydalanuvchi topilmadi", 404);
+```
+
+Yoki global error handler orqali:
+
+```js
+app.use(globalErrorHandle);
+```
+
+---
+
+### 3. Muvaffaqiyatli javob yuborish
+
+```js
+return successRes(res, user, 201);
+```
+---
+
+# 4 📦 main.js - Kirish nuqtasi-
+
+`main.js` fayli yordamida barcha funksiyalarni bitta joydan import qilishingiz mumkin:
+
+```js
+// main.js
+export { BaseController } from "./controllers/BaseController.js";
+export { AppError } from "./error/AppError.js";
+export { globalErrorHandle } from "./error/global-error-handel.js";
+export { successRes } from "./utils/success-res.js";
+```
+
+So'ng uni ilovada quyidagicha ishlatishingiz mumkin:
+
+```js
+// app.js
+import express from "express";
+import { globalErrorHandle } from "basecontroller-express";
+import userRoutes from "./routes/user.routes.js";
+
+const app = express();
+app.use(express.json());
+
+app.use("/api/users", userRoutes);
+
+// ✅ Xatoliklarni ushlovchi middleware — oxirida yozilishi kerak
+app.use(globalErrorHandle);
+```
+
+---
+
+## 📄 Litsenziya
+
+MIT
+
+---
+
+## ✍️ Muallif
+
+Muhabbat bilan tayyorladi — [Qosimov Dinmuhammad](https://github.com/dinmuhammad05)
